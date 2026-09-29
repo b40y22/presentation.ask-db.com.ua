@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ask DB — presentation</title>
+<style>
+/* Палітра — з лендінгу (app/landing/site/assets/style.css), щоб PDF, сайт і застосунок були одним продуктом */
+:root {
+  --font: 'Noto Sans', 'DejaVu Sans', sans-serif;
+  --mono: 'DejaVu Sans Mono', ui-monospace, monospace;
+  --gradient-bg: linear-gradient(135deg, #eef2ff 0%, #e8e0f0 40%, #dbeafe 100%);
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --text: #1e293b;
+  --text-2: #475569;
+  --muted: #64748b;
+  --accent: #6366f1;
+  --accent-text: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.08);
+  --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --code-bg: #1e293b;
+  --code-text: #a5f3fc;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
+
+@page { size: 1280px 720px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font); color: var(--text); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.slide {
+  width: 1280px; height: 720px; position: relative; overflow: hidden;
+  padding: 64px 80px 56px; background: var(--gradient-bg);
+  break-after: page; display: flex; flex-direction: column;
+}
+.slide:last-child { break-after: auto; }
+
+.foot {
+  position: absolute; left: 80px; right: 80px; bottom: 24px;
+  display: flex; justify-content: space-between; font-size: 13px; color: var(--muted);
+}
+.foot b { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-weight: 600; }
+.foot img { width: 18px; height: 18px; }
+
+.eyebrow {
+  display: inline-block; align-self: flex-start; padding: 5px 14px; border-radius: 99px;
+  background: var(--accent-light); color: var(--accent-text);
+  font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 18px;
+}
+h1 { font-size: 64px; line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 24px; font-weight: 700; }
+h2 { font-size: 42px; line-height: 1.15; letter-spacing: -0.025em; margin: 0 0 14px; font-weight: 700; }
+h3 { font-size: 21px; margin: 0 0 8px; font-weight: 700; }
+p  { margin: 0 0 10px; font-size: 18px; line-height: 1.5; color: var(--text-2); }
+.lead { font-size: 22px; max-width: 900px; }
+/* не background-clip:text — Chromium друкує навколо такого тексту рамку-артефакт */
+.grad { color: #6d5ef3; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: var(--shadow); padding: 26px 28px;
+}
+.card p { font-size: 16.5px; margin: 0; }
+.grid { display: grid; gap: 22px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.ico { font-size: 30px; margin-bottom: 10px; line-height: 1; }
+
+code { font-family: var(--mono); font-size: .88em; background: var(--accent-light); color: var(--accent-text); padding: 1px 6px; border-radius: 6px; }
+
+/* ---------- титул ---------- */
+.title { justify-content: center; }
+.title .logo { display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 700; margin-bottom: 44px; }
+.title .logo img { width: 52px; height: 52px; }
+.title .tags { display: flex; gap: 12px; margin-top: 30px; }
+.tag { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 8px 18px; font-size: 16px; color: var(--text-2); }
+.title .url { position: absolute; right: 80px; bottom: 56px; font-size: 20px; font-weight: 600; color: var(--accent-text); }
+
+/* ---------- макет чату ---------- */
+.split { display: grid; grid-template-columns: 1fr 1.15fr; gap: 48px; align-items: center; flex: 1; }
+.demo { padding: 0; overflow: hidden; }
+.demo-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: #f8fafc; }
+.demo-bar i { width: 11px; height: 11px; border-radius: 50%; background: #e2e8f0; }
+.demo-bar span { margin-left: 10px; font-size: 13px; color: var(--muted); }
+.shot { display: block; width: 100%; }
+.gallery { flex: 1; display: grid; grid-template-columns: auto 1fr; gap: 28px; min-height: 0; margin-top: 8px; }
+.gallery .col { display: flex; flex-direction: column; gap: 18px; min-height: 0; }
+.gallery figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.gallery figure img { border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 10px 30px rgba(15,23,42,.08); background: #fff; }
+.gallery figcaption { font-size: 15px; color: var(--muted); }
+.gallery .side img { height: 440px; width: auto; }
+.gallery .col img { width: 100%; }
+.gallery-en { flex: 1; display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+.gallery-en .row { display: flex; gap: 28px; align-items: flex-start; }
+.gallery-en figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.gallery-en img { width: 100%; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 10px 30px rgba(15,23,42,.08); background: #fff; }
+.gallery-en figcaption { font-size: 15px; color: var(--muted); }
+.demo-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.bubble { border-radius: 14px; padding: 12px 16px; font-size: 15.5px; line-height: 1.45; }
+.bubble-user { align-self: flex-end; background: var(--accent-gradient); color: #fff; border-bottom-right-radius: 4px; }
+.bubble-ai { background: #f1f3f9; border-bottom-left-radius: 4px; }
+.bubble-ai p { font-size: 15px; margin: 0 0 10px; color: var(--text); }
+pre.sql { margin: 0 0 12px; background: var(--code-bg); color: #e2e8f0; border-radius: 10px; padding: 12px 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; white-space: pre; }
+pre.sql b { color: var(--code-text); font-weight: 400; }
+table.result { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; font-size: 14px; }
+table.result th, table.result td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #eef0f5; }
+table.result th { background: #f8fafc; color: var(--muted); font-weight: 600; font-size: 12.5px; }
+table.result .num { text-align: right; font-variant-numeric: tabular-nums; }
+table.result tr:last-child td { border-bottom: 0; }
+
+.checks { list-style: none; padding: 0; margin: 20px 0 0; }
+.checks li { position: relative; padding-left: 34px; margin-bottom: 14px; font-size: 19px; color: var(--text-2); line-height: 1.45; }
+.checks li::before { content: '✓'; position: absolute; left: 0; top: 1px; width: 22px; height: 22px; border-radius: 50%; background: var(--success-light); color: var(--success); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.checks b { color: var(--text); }
+
+/* ---------- кроки ---------- */
+.steps { counter-reset: step; }
+.step { position: relative; padding-top: 70px; }
+.step::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; top: 24px; left: 28px; width: 34px; height: 34px; border-radius: 10px;
+  background: var(--accent-gradient); color: #fff; font-weight: 700; font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cmd { margin-top: 26px; background: var(--code-bg); color: #e2e8f0; border-radius: 12px; padding: 16px 22px; font-family: var(--mono); font-size: 15px; }
+.cmd b { color: var(--code-text); font-weight: 400; }
+.cmd i { color: #94a3b8; font-style: normal; }
+
+/* ---------- безпека ---------- */
+.diagram { padding: 18px 24px; margin-bottom: 22px; }
+.diagram svg { display: block; width: 100%; height: auto; }
+.layer { display: flex; gap: 16px; align-items: flex-start; padding: 20px 22px; }
+.layer .n { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--success-light); color: var(--success); font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.honest { margin-top: 18px; background: var(--warning-light); border: 1px solid #fde68a; border-radius: 12px; padding: 14px 20px; font-size: 15.5px; color: #92400e; line-height: 1.5; }
+
+/* ---------- питання ---------- */
+.role h3 { display: flex; align-items: center; gap: 10px; }
+.role { padding: 30px 30px 32px; }
+.role h3 { font-size: 24px; margin-bottom: 18px; }
+.q { margin-top: 14px; padding: 14px 18px; background: var(--accent-light); border-radius: 12px; color: var(--accent-text); font-size: 18px; line-height: 1.4; }
+
+/* ---------- роадмап ---------- */
+.stage { font-size: 14px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin: 0 0 14px; }
+.stage.done { color: var(--success); }
+.stage.next { color: var(--accent-text); }
+.pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.pill { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; font-size: 18px; color: var(--text); }
+.pill.done::before { content: '✓ '; color: var(--success); font-weight: 700; }
+.pill.next { border-style: dashed; border-color: #a5b4fc; color: var(--accent-text); }
+
+/* ---------- пілот ---------- */
+.offer { background: var(--accent-gradient); color: #fff; border: 0; }
+.offer h3 { font-size: 26px; }
+.offer p { color: rgba(255,255,255,.9); font-size: 18px; }
+.offer .big { font-size: 56px; font-weight: 700; line-height: 1; margin: 14px 0 10px; letter-spacing: -0.03em; }
+
+/* ---------- контакти ---------- */
+.contacts { display: flex; gap: 22px; margin-top: 34px; }
+.contacts .card { flex: 1; }
+.contacts .k { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 6px; }
+.contacts .v { font-size: 24px; font-weight: 700; color: var(--accent-text); }
+</style>
+</head>
+<body>
+
+<!-- 1. Титул -->
+<section class="slide title">
+  <div class="logo"><img src="logo.svg" alt="">Ask DB</div>
+  <span class="eyebrow">AI assistant for your database</span>
+  <h1>Ask your database<br><span class="grad">in plain language</span></h1>
+  <p class="lead">Ask DB writes the SQL query, runs it on your database and shows you the table.<br>No developer, no waiting for a report.</p>
+  <div class="tags">
+    <span class="tag">Read-only access</span>
+    <span class="tag">No open ports, no VPN</span>
+    <span class="tag">MySQL · MariaDB · PostgreSQL</span>
+  </div>
+  <div class="url">ask-db.com.ua/en</div>
+</section>
+
+<!-- 2. Проблема -->
+<section class="slide">
+  <span class="eyebrow">The problem</span>
+  <h2>The data is there. The answers aren’t</h2>
+  <p class="lead">Everything about your business is already in a database. But getting a number out of it takes someone who knows SQL.</p>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card"><div class="ico">⏳</div><h3>The report comes tomorrow</h3><p>A simple “how many, where, when” question becomes a ticket in a developer’s or accountant’s queue.</p></div>
+      <div class="card"><div class="ico">📊</div><h3>Standard reports miss the point</h3><p>Fixed reports answer yesterday’s questions. Every new question means new development work.</p></div>
+      <div class="card"><div class="ico">🔓</div><h3>Database access feels risky</h3><p>Giving a manager a direct connection puts the data at risk. So nobody gets the numbers.</p></div>
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>2</span></div>
+</section>
+
+<!-- 3. Рішення -->
+<section class="slide">
+  <div class="split">
+    <div>
+      <span class="eyebrow">The solution</span>
+      <h2>Question → answer in seconds</h2>
+      <p class="lead">Type or say the question the way you’d ask a colleague. On the right: a real production answer on a demo bookstore database.</p>
+      <ul class="checks">
+        <li><b>A table with the answer</b>, straight from your live database</li>
+        <li><b>An explanation</b> of what exactly the AI calculated</li>
+        <li><b>The SQL query itself</b>: you see what runs, and can edit and rerun it by hand</li>
+        <li><b>Follow-ups in the same chat:</b> “now only for Kyiv”</li>
+      </ul>
+    </div>
+    <div class="card demo">
+      <div class="demo-bar"><i></i><i></i><i></i><span>app.ask-db.com.ua</span></div>
+      <img class="shot" src="shots-en/chat-bookstore-crop.png" alt="A real Ask DB answer on the demo bookstore database">
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>3</span></div>
+</section>
+
+<!-- 4. Можливості -->
+<section class="slide">
+  <span class="eyebrow">Features</span>
+  <h2>More than a “chat with your database”</h2>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card"><div class="ico">🎙️</div><h3>Voice or text</h3><p>Ask by voice instead of typing, handy on a phone.</p></div>
+      <div class="card"><div class="ico">🌐</div><h3>Three languages</h3><p>Ukrainian, English and Russian: interface, AI explanations, voice and emails.</p></div>
+      <div class="card"><div class="ico">🧠</div><h3>Learns your database</h3><p>Correct answers are saved as examples, and notes explain the quirks of your data.</p></div>
+      <div class="card"><div class="ico">⚡</div><h3>Ready-made examples</h3><p>Frequent questions and stat cards in the sidebar: one click, always fresh numbers.</p></div>
+      <div class="card"><div class="ico">👥</div><h3>Team</h3><p>A company workspace, invite links for colleagues, shared connections. Only the owner and admins manage them.</p></div>
+      <div class="card"><div class="ico">🔍</div><h3>Transparency</h3><p>Every answer comes with SQL and an explanation. No black box.</p></div>
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>4</span></div>
+</section>
+
+<!-- 4b. Живий продукт -->
+<section class="slide">
+  <span class="eyebrow">Live product</span>
+  <h2>This is app.ask-db.com.ua today</h2>
+  <div class="gallery-en">
+    <figure style="width:900px"><img src="shots-en/orgs-crop.png" alt=""><figcaption>Companies and connections: 🟢 means the connector is online</figcaption></figure>
+    <div class="row">
+      <figure style="width:400px"><img src="shots-en/settings-crop.png" alt=""><figcaption>Knowledge for the AI and verified answers</figcaption></figure>
+      <figure style="flex:1"><img src="shots-en/invite-crop.png" alt=""><figcaption>Invite colleagues by link, with a role and an expiry</figcaption></figure>
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>5</span></div>
+</section>
+
+<!-- 5. Підключення -->
+<section class="slide">
+  <span class="eyebrow">Getting connected</span>
+  <h2>Three steps, about 10 minutes</h2>
+  <div class="body">
+    <div class="grid g3 steps">
+      <div class="card step"><h3>Create a connection</h3><p>Sign up for Ask DB and pick your database type. You get a personal connector token.</p></div>
+      <div class="card step"><h3>Run the connector</h3><p>One command on any computer or server in your network that can reach the database. Available as a Docker image and as apps for Windows, Linux and macOS.</p></div>
+      <div class="card step"><h3>Ask</h3><p>Once the connector is up, the app shows 🟢. Ask your first question.</p></div>
+    </div>
+    <div class="cmd"><b>docker run</b> -d <i>-e</i> CONNECTOR_TOKEN=… <i>-e</i> DB_DSN=… askdb/connector</div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>6</span></div>
+</section>
+
+<!-- 6. Безпека -->
+<section class="slide">
+  <span class="eyebrow">Security</span>
+  <h2>Data is only read. Never changed</h2>
+  <div class="card diagram">
+    <svg viewBox="0 0 1100 150" font-family="Noto Sans, sans-serif">
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6366f1"/></marker>
+      </defs>
+      <!-- наш бік -->
+      <rect x="0" y="30" width="200" height="80" rx="12" fill="#f1f3f9"/>
+      <text x="100" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#1e293b">You, in a browser</text>
+      <text x="100" y="90" text-anchor="middle" font-size="13" fill="#64748b">app.ask-db.com.ua</text>
+      <line x1="206" y1="70" x2="304" y2="70" stroke="#6366f1" stroke-width="2" marker-end="url(#a)" marker-start="url(#a)"/>
+      <text x="255" y="58" text-anchor="middle" font-size="12" fill="#64748b">HTTPS</text>
+      <rect x="310" y="30" width="220" height="80" rx="12" fill="#eef2ff" stroke="#c7d2fe"/>
+      <text x="420" y="66" text-anchor="middle" font-size="17" font-weight="700" fill="#4f46e5">Ask DB server</text>
+      <text x="420" y="90" text-anchor="middle" font-size="13" fill="#64748b">AI + SQL checks</text>
+      <!-- межа мережі -->
+      <rect x="640" y="4" width="456" height="142" rx="16" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="7 6"/>
+      <text x="868" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="#10b981">YOUR NETWORK · no public IP, no open ports</text>
+      <line x1="536" y1="80" x2="664" y2="80" stroke="#6366f1" stroke-width="2" marker-start="url(#a)" marker-end="url(#a)"/>
+      <text x="600" y="68" text-anchor="middle" font-size="12" fill="#64748b">wss://</text>
+      <text x="628" y="102" text-anchor="end" font-size="11" fill="#64748b">opened by connector</text>
+      <rect x="670" y="40" width="190" height="80" rx="12" fill="#ecfdf5" stroke="#a7f3d0"/>
+      <text x="765" y="76" text-anchor="middle" font-size="17" font-weight="700" fill="#047857">Connector</text>
+      <text x="765" y="100" text-anchor="middle" font-size="13" fill="#64748b">DB password stays here</text>
+      <line x1="866" y1="80" x2="924" y2="80" stroke="#6366f1" stroke-width="2" marker-end="url(#a)"/>
+      <rect x="930" y="40" width="150" height="80" rx="12" fill="#f1f3f9"/>
+      <text x="1005" y="76" text-anchor="middle" font-size="17" font-weight="700" fill="#1e293b">Your DB</text>
+      <text x="1005" y="100" text-anchor="middle" font-size="13" fill="#64748b">read-only</text>
+    </svg>
+  </div>
+  <div class="grid g3">
+    <div class="card layer"><div class="n">1</div><div><h3>Checked on the server</h3><p>A single SELECT only. Updates, deletes and schema changes are rejected.</p></div></div>
+    <div class="card layer"><div class="n">2</div><div><h3>Checked again in the connector</h3><p>The same rules inside your network. Even a compromised server can’t change your data.</p></div></div>
+    <div class="card layer"><div class="n">3</div><div><h3>Read-only session</h3><p>The database connection is opened in read-only mode.</p></div></div>
+  </div>
+  <div class="honest"><b>To be honest:</b> the question, the table structure and the result pass through our server and the AI model; otherwise the AI can’t write the query. Traffic is encrypted. The AI never sees name, email or phone columns, not even as sample values.</div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>7</span></div>
+</section>
+
+<!-- 7. Для кого -->
+<section class="slide">
+  <span class="eyebrow">Who it’s for</span>
+  <h2>Everyone on the team, with their own questions</h2>
+  <p class="lead">They ask the way they’d ask an analyst. No table names or SQL needed.</p>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card role"><h3>👔 Owner</h3>
+        <div class="q">How did quarterly revenue change compared to last year?</div>
+        <div class="q">Which 10 customers brought in the most money?</div>
+        <div class="q">What is the average order value by month this year?</div>
+      </div>
+      <div class="card role"><h3>📞 Sales</h3>
+        <div class="q">Which customers haven’t bought anything in over 3 months?</div>
+        <div class="q">How many orders came from Kyiv last week?</div>
+        <div class="q">Which manager closed the most deals in September?</div>
+      </div>
+      <div class="card role"><h3>📦 Warehouse & purchasing</h3>
+        <div class="q">Which products are running out, with fewer than 10 left?</div>
+        <div class="q">What hasn’t sold even once in 60 days?</div>
+        <div class="q">Which products sold the most units this week?</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>8</span></div>
+</section>
+
+<!-- 8. Стан продукту -->
+<section class="slide">
+  <span class="eyebrow">Product status</span>
+  <h2>Already live, not a mockup</h2>
+  <p class="lead">The app runs in production at <b>app.ask-db.com.ua</b>; the connector is a public image on Docker Hub.</p>
+  <div class="body">
+    <p class="stage done">Live now</p>
+    <div class="pills" style="margin-bottom:34px">
+      <span class="pill done">Plain-language questions</span>
+      <span class="pill done">MySQL and MariaDB</span>
+      <span class="pill done">PostgreSQL</span>
+      <span class="pill done">Read-only, checked twice</span>
+      <span class="pill done">Knowledge for the AI</span>
+      <span class="pill done">Team and shared connections</span>
+      <span class="pill done">Connector without Docker</span>
+      <span class="pill done">Voice questions</span>
+      <span class="pill done">Ukrainian, English, Russian</span>
+    </div>
+    <p class="stage next">Next</p>
+    <div class="pills">
+      <span class="pill next">1C / BAS: questions to accounting databases</span>
+      <span class="pill next">Export results to Excel / CSV</span>
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>9</span></div>
+</section>
+
+<!-- 9. Пілот -->
+<section class="slide">
+  <span class="eyebrow">The offer</span>
+  <h2>A pilot for our first companies</h2>
+  <div class="body">
+    <div class="grid g2" style="align-items:stretch">
+      <div class="card offer">
+        <h3>You get</h3>
+        <div class="big">3 months</div>
+        <p>of the Pro plan for free: up to 1,000 questions a month, voice and team.</p>
+        <p style="margin-top:14px">We help you connect live, on your own database.</p>
+      </div>
+      <div class="card">
+        <h3>What we ask in return</h3>
+        <ul class="checks" style="margin-top:14px">
+          <li><b>10 real questions</b> you ask of your data every week</li>
+          <li><b>Short weekly feedback:</b> what worked, where the AI got it wrong</li>
+          <li><b>Your wishes:</b> pilot customers decide what we build next</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>10</span></div>
+</section>
+
+<!-- 10. Контакти -->
+<section class="slide title">
+  <div class="logo"><img src="logo.svg" alt="">Ask DB</div>
+  <h1>Let us show you live,<br><span class="grad">on your own questions</span></h1>
+  <p class="lead">Write to us: we’ll set up 20 minutes, connect your database and ask what you really want to know.</p>
+  <div class="contacts">
+    <div class="card"><div class="k">Email</div><div class="v">hello@ask-db.com.ua</div></div>
+    <div class="card"><div class="k">Website</div><div class="v">ask-db.com.ua/en</div></div>
+    <div class="card"><div class="k">App</div><div class="v">app.ask-db.com.ua</div></div>
+  </div>
+</section>
+
+</body>
+</html>

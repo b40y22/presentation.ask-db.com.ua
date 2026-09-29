@@ -1,0 +1,8 @@
+# build results (PDF copies live in the vault) and preview renders
+*.pdf
+/png/
+*.bak
+
+# raw screenshots before cropping
+/shots/*.jpg
+/shots-en/*.jpg
