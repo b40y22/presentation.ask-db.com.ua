@@ -1,11 +1,14 @@
-// Монтаж: out/raw.webm + timeline + озвучка → out/ask-db-uk.mp4 (1920×1080, вшиті субтитри, музика).
+// Монтаж: out/<ролик>/raw.webm + timeline + озвучка → out/<ролик>/ask-db-*uk.mp4 (1920×1080, вшиті субтитри, музика).
 // Очікування відповіді AI вирізається, запис застосунку — у рамці на тлі лендінгу, субтитри — у смузі під нею.
 // Музика — music/*.mp3 (перший за абеткою); якщо теки нема — тихий синтезований пад-заглушка.
 //
-//   npm run build
-import { execFileSync } from 'node:child_process'
+//   npm run build                 # основний ролик
+//   VIDEO=connect npm run build   # підключення бази
+import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { ASKER, LOADING_KEEP, QUESTIONS, SCENES } from './narration.mjs'
+import { ASKER, LOADING_KEEP, OUT, OUTPUT, script } from './video.mjs'
+
+const { SCENES, VOICE_QUESTION } = script
 
 const W = 1920
 const H = 1080
@@ -15,22 +18,31 @@ const Q1_LEAD = 0.65 // голос питання: ~0,15 с — відкрива
 const MUSIC_VOLUME = 0.16
 const FPS = 30
 
-const timeline = JSON.parse(readFileSync('out/timeline.json', 'utf8'))
-const narration = JSON.parse(readFileSync('out/narration.json', 'utf8'))
+const timeline = JSON.parse(readFileSync(`${OUT}/timeline.json`, 'utf8'))
+const narration = JSON.parse(readFileSync(`${OUT}/narration.json`, 'utf8'))
 
 // ---- Відрізки сирого відео (с) і їхнє місце у фінальному ----
-// Playwright пише кадри не з моменту старту скрипта, а з першого відмальованого — сире відео коротше
-// за таймлайн на сталу величину; зсуваємо всі позначки на неї (інакше кадр «після cut» просочується в монтаж)
-const rawDuration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', 'out/raw.webm']))
-const skew = timeline.at(-1).at - rawDuration * 1000
+// Годинник скрипта і кадри Playwright розходяться (на dev і проді — навіть у різні боки); зсуваємо всі
+// позначки так, щоб кінець чорного кадру з record.mjs збігся з позначкою sync
+// (інакше кадр «після cut» просочується в монтаж)
+const rawDuration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', `${OUT}/raw.webm`]))
+const sync = timeline.find((s) => s.id === 'sync')
+if (!sync) throw new Error('у таймлайні нема позначки sync — перезапиши відео свіжим record.mjs')
+// blackdetect пише в stderr
+const black = spawnSync('ffmpeg', ['-i', `${OUT}/raw.webm`, '-t', '5', '-vf', 'blackdetect=d=0.3:pix_th=0.1', '-an', '-f', 'null', '-'],
+  { encoding: 'utf8' }).stderr
+const blackEnd = Number(black.match(/black_end:([\d.]+)/)?.[1])
+if (!blackEnd) throw new Error('не знайшов чорний кадр синхронізації на початку raw.webm')
+const skew = sync.at - blackEnd * 1000
 const shifted = (ms) => ms && ms - skew
-const scenes = timeline.filter((s) => s.id !== 'end')
-  .map((s) => ({ ...s, at: Math.max(0, shifted(s.at)), ready: shifted(s.ready), mic: shifted(s.mic), cut: shifted(s.cut) }))
-const endAt = rawDuration * 1000
+const scenes = timeline.filter((s) => s.id !== 'end' && s.id !== 'sync')
+  .map((s) => ({ ...s, at: Math.max(0, shifted(s.at)), ready: shifted(s.ready), mic: shifted(s.mic), cut: shifted(s.cut), done: shifted(s.done) }))
+const endAt = Math.min(rawDuration * 1000, shifted(timeline.at(-1).at)) // після close() Playwright дописує хвіст
 let out = 0
 const segments = scenes.map((s, i) => {
-  // cut — сцена обривається раніше за початок наступної (після неї в кадрі те, чого показувати не можна)
-  const next = s.cut ?? scenes[i + 1]?.at ?? endAt
+  // cut — сцена обривається раніше за початок наступної (після неї в кадрі те, чого показувати не можна);
+  // done — кінець сцени: далі до наступної йде підготовка поза кадром
+  const next = s.cut ?? s.done ?? scenes[i + 1]?.at ?? endAt
   const from = s.ready ? Math.max(s.at, s.ready - LOADING_KEEP) : s.at
   const seg = { id: s.id, from: from / 1000, to: next / 1000, out, mic: s.mic && (s.mic - from) / 1000 }
   out += seg.to - seg.from
@@ -52,15 +64,15 @@ for (const seg of segments) {
   }
   if (seg.mic != null) {
     const start = seg.out + seg.mic + Q1_LEAD
-    const q1 = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', 'audio/q1.mp3']))
-    cues.push({ start, end: start + q1 + 0.3, text: `«${QUESTIONS[0]}»`, style: 'Asker' })
+    const q1 = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', narration.q1.voice]))
+    cues.push({ start, end: start + q1 + 0.3, text: `«${VOICE_QUESTION}»`, style: 'Asker' })
   }
 }
 // субтитр не заходить на наступний
 cues.sort((a, b) => a.start - b.start).forEach((c, i) => { if (cues[i + 1]) c.end = Math.min(c.end, cues[i + 1].start - 0.05) })
 
 const subY = H - (H - APP.y - APP.h) / 2 // центр смуги під рамкою
-writeFileSync('out/subs.ass', `[Script Info]
+writeFileSync(`${OUT}/subs.ass`, `[Script Info]
 ScriptType: v4.00+
 PlayResX: ${W}
 PlayResY: ${H}
@@ -75,7 +87,7 @@ Style: Asker,Noto Sans,40,&H00E5464F,&H00000000,&H00000000,&H00000000,-1,-1,0,0,
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 ${cues.map((c) => `Dialogue: 0,${t(c.start)},${t(c.end)},${c.style},,0,0,0,,{\\pos(${W / 2},${subY})}${c.text}`).join('\n')}
 `)
-console.log(`зсув відео ${(skew / 1000).toFixed(2)} с; ${segments.length} сцен, ${total.toFixed(1)} с, ${cues.length} субтитрів (голос питання — ${ASKER.name})`)
+console.log(`зсув відео ${(skew / 1000).toFixed(2)} с; ${segments.length} сцен, ${total.toFixed(1)} с, ${cues.length} субтитрів${VOICE_QUESTION ? ` (голос питання — ${ASKER.name})` : ''}`)
 
 // ---- Музика ----
 const tracks = existsSync('music') ? readdirSync('music').filter((f) => /\.(mp3|wav|ogg|m4a|flac)$/i.test(f)).sort() : []
@@ -86,11 +98,11 @@ const music = tracks.length
 console.log(tracks.length ? `музика: music/${tracks[0]}` : 'музика: синтезована заглушка (поклади трек у video/music/)')
 
 // ---- ffmpeg ----
-const inputs = ['-i', 'out/raw.webm', ...music]
+const inputs = ['-i', `${OUT}/raw.webm`, ...music]
 const voice = [] // [файл, старт у фіналі]
 for (const seg of segments) {
   voice.push([narration[seg.id].file, seg.out + LEAD])
-  if (seg.mic != null) voice.push(['audio/q1.mp3', seg.out + seg.mic + Q1_LEAD])
+  if (seg.mic != null) voice.push([narration.q1.voice, seg.out + seg.mic + Q1_LEAD])
 }
 voice.forEach(([file]) => inputs.push('-i', file))
 
@@ -98,7 +110,7 @@ const f = []
 segments.forEach((s, i) => f.push(`[0:v]trim=start=${s.from.toFixed(3)}:end=${s.to.toFixed(3)},setpts=PTS-STARTPTS[s${i}]`))
 f.push(`${segments.map((_, i) => `[s${i}]`).join('')}concat=n=${segments.length}:v=1:a=0,fps=${FPS},scale=${APP.w}:${APP.h}:flags=lanczos[app]`)
 f.push(`gradients=s=${W}x${H}:c0=0xeef2ff:c1=0xe8e0f0:c2=0xdbeafe:nb_colors=3:x0=0:y0=0:x1=${W}:y1=${H}:r=${FPS}:d=${total.toFixed(2)}:speed=0.00001[bg]`)
-f.push(`[bg][app]overlay=${APP.x}:${APP.y}:shortest=1,subtitles=out/subs.ass,fade=t=in:d=0.6,fade=t=out:st=${(total - 1).toFixed(2)}:d=1,format=yuv420p[v]`)
+f.push(`[bg][app]overlay=${APP.x}:${APP.y}:shortest=1,subtitles=${OUT}/subs.ass,fade=t=in:d=0.6,fade=t=out:st=${(total - 1).toFixed(2)}:d=1,format=yuv420p[v]`)
 voice.forEach(([, at], i) => {
   const ms = Math.round(at * 1000)
   f.push(`[${i + 2}:a]aresample=44100,aformat=channel_layouts=stereo,adelay=${ms}|${ms}[a${i}]`)
@@ -112,5 +124,5 @@ f.push(`[voice][duck]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,are
 execFileSync('ffmpeg', ['-loglevel', 'error', '-stats', '-y', ...inputs,
   '-filter_complex', f.join(';'), '-map', '[v]', '-map', '[a]',
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart',
-  'out/ask-db-uk.mp4'], { stdio: 'inherit' })
-console.log('out/ask-db-uk.mp4')
+  OUTPUT], { stdio: 'inherit' })
+console.log(OUTPUT)

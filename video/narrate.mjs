@@ -1,12 +1,15 @@
-// Озвучує диктора (по сцені — один запит з таймкодами) і питання 1 голосом «користувача».
-// Кеш — audio/cache/<hash>.json: незмінений текст повторно не озвучується (кредити ElevenLabs).
-// Пише audio/scene-NN.mp3, audio/q1.wav (для фейкового мікрофона) і out/narration.json.
+// Озвучує диктора (по сцені — один запит з таймкодами) і, якщо є, питання голосом «користувача».
+// Кеш — audio/cache/<hash>.json, спільний для роликів: незмінений текст повторно не озвучується (кредити ElevenLabs).
+// Пише audio/<ролик>/scene-NN.mp3, audio/<ролик>/q1.wav (для фейкового мікрофона) і out/<ролик>/narration.json.
 //
-//   npm run narrate
+//   npm run narrate                 # основний ролик
+//   VIDEO=connect npm run narrate   # підключення бази
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { ASKER, MODEL, NARRATOR, QUESTIONS, SCENES, SEED, sayText } from './narration.mjs'
+import { ASKER, AUDIO, MODEL, NARRATOR, OUT, SEED, VIDEO, sayText, script } from './video.mjs'
+
+const { SCENES, VOICE_QUESTION } = script
 
 const KEY = process.env.ELEVENLABS_API_KEY
 if (!KEY) {
@@ -15,7 +18,8 @@ if (!KEY) {
 }
 
 mkdirSync('audio/cache', { recursive: true })
-mkdirSync('out', { recursive: true })
+mkdirSync(AUDIO, { recursive: true })
+mkdirSync(OUT, { recursive: true })
 
 async function tts(voice, text) {
   const body = { text, model_id: MODEL, language_code: 'uk', seed: SEED }
@@ -53,24 +57,27 @@ function phraseTimes(scene, alignment) {
   })
 }
 
+console.log(`ролик ${VIDEO}`)
 const narration = {}
 for (const scene of SCENES) {
   const text = sayText(scene)
   console.log(`${scene.id}. ${scene.name}`)
   const data = await tts(NARRATOR.voice, text)
-  const file = `audio/scene-${String(scene.id).padStart(2, '0')}.mp3`
+  const file = `${AUDIO}/scene-${String(scene.id).padStart(2, '0')}.mp3`
   writeFileSync(file, Buffer.from(data.audio_base64, 'base64'))
   narration[scene.id] = { file, duration: duration(file), phrases: phraseTimes(scene, data.alignment) }
 }
 
-console.log('q1 (голос користувача)')
-const q1 = await tts(ASKER.voice, QUESTIONS[0])
-writeFileSync('audio/q1.mp3', Buffer.from(q1.audio_base64, 'base64'))
-// 0,5 с тиші на старті — мікрофон встигає відкритись; 48 кГц моно — формат фейкового пристрою Chromium
-execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', 'audio/q1.mp3', '-af', 'adelay=500|500,apad=pad_dur=1',
-  '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', 'audio/q1.wav'])
-narration.q1 = { file: 'audio/q1.wav', duration: duration('audio/q1.wav') }
+if (VOICE_QUESTION) {
+  console.log('q1 (голос користувача)')
+  const q1 = await tts(ASKER.voice, VOICE_QUESTION)
+  writeFileSync(`${AUDIO}/q1.mp3`, Buffer.from(q1.audio_base64, 'base64'))
+  // 0,5 с тиші на старті — мікрофон встигає відкритись; 48 кГц моно — формат фейкового пристрою Chromium
+  execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', `${AUDIO}/q1.mp3`, '-af', 'adelay=500|500,apad=pad_dur=1',
+    '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', `${AUDIO}/q1.wav`])
+  narration.q1 = { file: `${AUDIO}/q1.wav`, voice: `${AUDIO}/q1.mp3`, duration: duration(`${AUDIO}/q1.wav`) }
+}
 
-writeFileSync('out/narration.json', JSON.stringify(narration, null, 2))
+writeFileSync(`${OUT}/narration.json`, JSON.stringify(narration, null, 2))
 const total = SCENES.reduce((s, sc) => s + narration[sc.id].duration, 0)
-console.log(`out/narration.json — диктор ${total.toFixed(1)} с`)
+console.log(`${OUT}/narration.json — диктор ${total.toFixed(1)} с`)

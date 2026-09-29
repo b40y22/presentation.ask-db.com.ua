@@ -1,13 +1,5 @@
-// Текст диктора по сценах (див. SCRIPT.md). Кожна фраза — окремий субтитр:
+// Основний ролик: текст диктора по сценах (див. SCRIPT.md). Кожна фраза — окремий субтитр:
 // say — що вимовляє TTS (латиниця й абревіатури — як читаються), sub — що бачить глядач.
-
-export const NARRATOR = { voice: 'JBFqnCBsd6RMkjVDRZzb', name: 'George' }
-export const ASKER = { voice: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah' }
-export const MODEL = 'eleven_v3'
-export const SEED = 42
-
-// Скільки «Обробляю запит…» лишається в кадрі перед відповіддю, мс; решта очікування AI вирізається
-export const LOADING_KEEP = 1200
 
 const AD = 'Аск Ді-Бі'
 
@@ -16,6 +8,9 @@ export const QUESTIONS = [
   'Яка виручка кожного магазину за третій квартал з урахуванням знижок?',
   'Яких популярних книг у Львові лишилось менше п\'яти штук?',
 ]
+
+// Перше питання звучить голосом (ASKER) і йде у фейковий мікрофон
+export const VOICE_QUESTION = QUESTIONS[0]
 
 export const SCENES = [
   { id: 1, name: 'landing', phrases: [
@@ -65,5 +60,3 @@ export const SCENES = [
       say: 'Май-ес-кю-ель і Постгрес. Спробуйте на аск-ді-бі крапка ком крапка ю-а.' },
   ] },
 ]
-
-export const sayText = (scene) => scene.phrases.map((p) => p.say ?? p.sub).join(' ')

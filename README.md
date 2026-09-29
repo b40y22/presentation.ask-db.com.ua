@@ -18,14 +18,33 @@ Chromium — snap: вихідники мають лежати в `~`, не в `/
 
 ## Відео (`video/`)
 
-Сценарій і рішення — `video/SCRIPT.md`, текст диктора — `video/narration.mjs`. Ключ ElevenLabs — `video/.env`
+Два ролики: `main` (дефолт) і `connect` — як підключити базу; обирає змінна `VIDEO`. На кожен —
+`narration-<ролик>.mjs` (текст диктора) і `scenes-<ролик>.mjs` (що робить Playwright), результат — `out/<ролик>/`.
+Сценарій і рішення основного — `video/SCRIPT.md`. Ключ ElevenLabs — `video/.env`
 (`ELEVENLABS_API_KEY=...`, у git не йде). Музика — поклади трек у `video/music/`, інакше — синтезована заглушка.
 
     cd video && npm ci && npx playwright install chromium
     npm run narrate                                   # озвучка (кеш у audio/cache — незмінений текст не платний)
     INVITE_URL=<запрошення в Demo-Book> VIDEO_EMAIL=video-NN@ask-db.com.ua \
       BASE_URL=https://app.ask-db.com.ua npm run record   # запис; без BASE_URL — локальний dev
-    npm run build                                     # out/ask-db-uk.mp4
+    npm run build                                     # out/main/ask-db-uk.mp4
 
 Кожен запис реєструє нового користувача — запрошення з кількома використаннями, пошта щоразу нова.
 Після реєстрації застосунок відкриває сторінку компанії з поштою учасників — запис ріже її (позначка `cut`).
+
+### Ролик «Як підключити базу» (`VIDEO=connect`)
+
+MySQL напряму + PostgreSQL через конектор, далі питання в чаті. Знімається лише на dev — конектор
+запускається локально (`docker run`), а в кадрі команда підмінена на прод-вигляд: токен і пароль — крапками,
+шлюз `wss://connect.ask-db.com.ua`, образ `askdb/connector:latest`.
+
+Підготовка dev (один раз): компанія «Книгарня «Сторінка»» на тарифі internal, у ній верифікований
+користувач `VIDEO_EMAIL`; MySQL і PostgreSQL з базою `bookstore` і користувачем лише на читання `bookstore_ro`,
+обидві під іменем `db.storinka.ua` в docker-мережі `askdb-video` (`CONNECTOR_NETWORK`); образ `adb-connector:dev`.
+
+    VIDEO=connect npm run narrate
+    VIDEO=connect VIDEO_EMAIL=... VIDEO_PASSWORD=... MYSQL_PASSWORD=... \
+      PG_DSN='postgres://bookstore_ro:...@db.storinka.ua:5432/bookstore' npm run record
+    VIDEO=connect npm run build                       # out/connect/ask-db-connect-uk.mp4
+
+Підключення попереднього дубля запис переносить у компанію `video-archive` (з `#id` у назві) — не видаляє.
