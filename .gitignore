@@ -6,3 +6,9 @@
 # raw screenshots before cropping
 /shots/*.jpg
 /shots-en/*.jpg
+
+# secrets (ElevenLabs key)
+.env
+
+# voice samples (regenerated, cost credits)
+/video/samples/
