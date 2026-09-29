@@ -1,0 +1,13 @@
+{
+  "name": "ask-db-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "narrate": "node --env-file=.env narrate.mjs",
+    "record": "node record.mjs",
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

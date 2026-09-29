@@ -1,0 +1,39 @@
+<!doctype html>
+<!-- Фінальний титр відео (сцена 11); палітра — з лендінгу -->
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 28px; font-family: 'Inter', 'Noto Sans', sans-serif; color: #1e293b;
+    background: linear-gradient(135deg, #eef2ff 0%, #e8e0f0 40%, #dbeafe 100%);
+  }
+  .logo { display: flex; align-items: center; gap: 22px; opacity: 0; animation: up .8s ease-out .2s forwards; }
+  .logo svg { width: 96px; height: 96px; filter: drop-shadow(0 12px 30px rgba(99, 102, 241, .35)); }
+  .logo span { font-size: 84px; font-weight: 800; letter-spacing: -2px; }
+  .tag { font-size: 34px; color: #475569; opacity: 0; animation: up .8s ease-out 1.2s forwards; }
+  .pills { display: flex; gap: 16px; opacity: 0; animation: up .8s ease-out 4.5s forwards; }
+  .pills span {
+    padding: 12px 26px; border-radius: 999px; font-size: 24px; font-weight: 600; color: #4f46e5;
+    background: rgba(255, 255, 255, .85); border: 1px solid rgba(0, 0, 0, .06);
+  }
+  .url {
+    margin-top: 18px; padding: 20px 48px; border-radius: 18px; font-size: 44px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 16px 40px rgba(99, 102, 241, .35);
+    opacity: 0; animation: up .8s ease-out 8.5s forwards;
+  }
+  @keyframes up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+  <div class="logo">
+    <svg viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g)"/><path d="M25 19.5a2 2 0 0 1-2 2H11l-4 4V8.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>
+    <span>Ask DB</span>
+  </div>
+  <div class="tag">Питайте свою базу даних — українською</div>
+  <div class="pills"><span>Тільки читання</span><span>MySQL</span><span>PostgreSQL</span></div>
+  <div class="url">ask-db.com.ua</div>
+</body>
+</html>

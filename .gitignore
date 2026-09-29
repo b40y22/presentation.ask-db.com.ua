@@ -12,3 +12,9 @@
 
 # voice samples (regenerated, cost credits)
 /video/samples/
+
+# generated audio (TTS costs credits)
+/video/audio/
+/video/out/
+/video/node_modules/
+/video/music/
