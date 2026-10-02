@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Ask DB — тарифи</title>
+<style>
+/* Палітра й розмір слайда — як у ask-db.uk.html, щоб аркуш можна було класти поруч із презентацією */
+:root {
+  --font: 'Noto Sans', 'DejaVu Sans', sans-serif;
+  --gradient-bg: linear-gradient(135deg, #eef2ff 0%, #e8e0f0 40%, #dbeafe 100%);
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --text: #1e293b;
+  --text-2: #475569;
+  --muted: #64748b;
+  --accent: #6366f1;
+  --accent-text: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.08);
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
+
+@page { size: 1280px 720px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font); color: var(--text); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.slide {
+  width: 1280px; height: 720px; position: relative; overflow: hidden;
+  padding: 48px 80px 56px; background: var(--gradient-bg); display: flex; flex-direction: column;
+}
+.foot {
+  position: absolute; left: 80px; right: 80px; bottom: 22px;
+  display: flex; justify-content: space-between; font-size: 13px; color: var(--muted);
+}
+.foot b { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-weight: 600; }
+.foot img { width: 18px; height: 18px; }
+
+.eyebrow {
+  display: inline-block; align-self: flex-start; padding: 5px 14px; border-radius: 99px;
+  background: var(--accent-light); color: var(--accent-text);
+  font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 14px;
+}
+h2 { font-size: 40px; line-height: 1.15; letter-spacing: -0.025em; margin: 0 0 24px; font-weight: 700; }
+.grad { color: #6d5ef3; }
+
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.plan {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: var(--shadow); padding: 22px 26px 18px; position: relative;
+}
+.plan.hl { border: 2px solid var(--accent); }
+.plan .badge {
+  position: absolute; top: -12px; right: 20px; background: var(--accent); color: #fff;
+  font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 99px;
+}
+.plan h3 { font-size: 20px; margin: 0; font-weight: 700; }
+.plan .sub { font-size: 14px; color: var(--muted); margin-top: 2px; min-height: 20px; }
+.price { display: flex; align-items: baseline; gap: 6px; margin: 10px 0 14px; }
+.price .n { font-size: 46px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.price .per { font-size: 15px; color: var(--muted); }
+
+.rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+.rows li {
+  display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;
+  border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text-2);
+}
+.rows li:last-child { border-bottom: 0; }
+.rows li b { color: var(--text); font-weight: 600; text-align: right; }
+.rows li b.no { color: #94a3b8; font-weight: 400; }
+
+.all {
+  margin-top: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 15px; color: var(--text-2);
+}
+.all .k { font-weight: 700; color: var(--text); margin-right: 4px; }
+.chip { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; }
+.chip::before { content: '✓ '; color: var(--success); font-weight: 700; }
+
+.notes { margin-top: 14px; font-size: 14px; color: var(--muted); line-height: 1.55; }
+.notes b { color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<section class="slide">
+  <span class="eyebrow">Тарифи</span>
+  <h2>Ціна — за компанію, <span class="grad">не за кожного користувача</span></h2>
+
+  <div class="plans">
+    <div class="plan">
+      <h3>Free</h3>
+      <div class="sub">Спробувати на своїй базі</div>
+      <div class="price"><span class="n">$0</span></div>
+      <ul class="rows">
+        <li>Користувачі <b>до 2</b></li>
+        <li>Питання до AI <b>20 на день</b></li>
+        <li>Підключені бази <b>1</b></li>
+        <li>Голосові питання <b class="no">—</b></li>
+        <li>Розсилки й сповіщення <b>до 5</b></li>
+      </ul>
+    </div>
+
+    <div class="plan hl">
+      <span class="badge">Основний</span>
+      <h3>Pro</h3>
+      <div class="sub">Для команди, все включено</div>
+      <div class="price"><span class="n">$20</span><span class="per">/ місяць</span></div>
+      <ul class="rows">
+        <li>Користувачі <b>до 5</b></li>
+        <li>Питання до AI <b>1000 на місяць</b></li>
+        <li>Підключені бази <b>без обмежень</b></li>
+        <li>Голосові питання <b>300 хв на місяць</b></li>
+        <li>Розсилки й сповіщення <b>до 20</b></li>
+      </ul>
+    </div>
+
+    <div class="plan">
+      <h3>Pro + свої ключі AI</h3>
+      <div class="sub">AI через ваші ключі OpenAI / Anthropic</div>
+      <div class="price"><span class="n">$10</span><span class="per">/ місяць</span></div>
+      <ul class="rows">
+        <li>Користувачі <b>до 5</b></li>
+        <li>Питання до AI <b>без ліміту</b></li>
+        <li>Підключені бази <b>без обмежень</b></li>
+        <li>Голосові питання <b>з ключем OpenAI</b></li>
+        <li>Розсилки й сповіщення <b>до 20</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="all">
+    <span class="k">У всіх тарифах:</span>
+    <span class="chip">Лише читання даних</span>
+    <span class="chip">Конектор — без білого IP і VPN</span>
+    <span class="chip">Ролі й запрошення</span>
+    <span class="chip">MySQL · MariaDB · PostgreSQL</span>
+  </div>
+
+  <div class="notes">
+    <b>Дані не блокуються ніколи:</b> коли підписка закінчується, компанія просто переходить на Free.
+    Ціни в доларах США; для українських компаній — рахунок у гривнях за курсом НБУ на день виставлення.<br>
+    <b>Пілот на вашій базі</b> — за домовленістю: hello@ask-db.com.ua
+  </div>
+
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB · ask-db.com.ua</b><span>Ціни актуальні на жовтень 2026</span></div>
+</section>
+
+</body>
+</html>
