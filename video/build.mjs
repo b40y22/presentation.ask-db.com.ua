@@ -31,8 +31,21 @@ if (!sync) throw new Error('у таймлайні нема позначки sync
 // blackdetect пише в stderr
 const black = spawnSync('ffmpeg', ['-i', `${OUT}/raw.webm`, '-t', '5', '-vf', 'blackdetect=d=0.3:pix_th=0.1', '-an', '-f', 'null', '-'],
   { encoding: 'utf8' }).stderr
-const blackEnd = Number(black.match(/black_end:([\d.]+)/)?.[1])
-if (!blackEnd) throw new Error('не знайшов чорний кадр синхронізації на початку raw.webm')
+let blackEnd = Number(black.match(/black_end:([\d.]+)/)?.[1])
+
+// Запасний шлях: нова збірка Chromium іноді не записує чорний кадр (запис стартує з білого, далі одразу перша сторінка).
+// Тоді точкою синхронізації вважаємо момент, коли яскравість уперше помітно змінюється відносно стартової білої.
+// Похибка — час відмальовування першої сторінки (десятки мс); у запасі лишається TAIL
+if (!blackEnd) {
+  const luma = (t) => Number(spawnSync('ffmpeg', ['-hide_banner', '-ss', String(t), '-i', `${OUT}/raw.webm`, '-frames:v', '1', '-vf', 'signalstats,metadata=print:key=lavfi.signalstats.YAVG', '-f', 'null', '-'],
+    { encoding: 'utf8' }).stderr.match(/YAVG=([\d.]+)/)?.[1])
+  const base = luma(0)
+  for (let t = 0.04; t <= 3; t += 0.04) {
+    if (Math.abs(luma(t) - base) > 8) { blackEnd = t; break }
+  }
+  if (!blackEnd) throw new Error('не знайшов ні чорний кадр синхронізації, ні перший перехід від білого на початку raw.webm')
+  console.warn(`чорного кадру нема — синхронізація за першим переходом від білого: ${blackEnd.toFixed(2)} с`)
+}
 const skew = sync.at - blackEnd * 1000
 const shifted = (ms) => ms && ms - skew
 const scenes = timeline.filter((s) => s.id !== 'end' && s.id !== 'sync')
