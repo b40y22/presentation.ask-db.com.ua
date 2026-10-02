@@ -44,6 +44,13 @@ export default async function ({ page, scene, mark, pause, holdUntil, spoken, na
     await page.waitForURL(/\/organizations\//)
     await page.goto(BASE_URL + '/')
     await page.locator('textarea').waitFor()
+    // Новому користувачеві застосунок один раз показує вікно привітання: воно перекриває чат і мікрофон.
+    // Закриваємо тут — це ще після cut, у монтаж не потрапляє. Вікно з'являється, коли підвантажаться підключення
+    const welcome = page.locator('.welcome-overlay')
+    if (await welcome.waitFor({ timeout: 10_000 }).then(() => true, () => false)) {
+      await page.locator('.welcome-close').click()
+      await welcome.waitFor({ state: 'hidden' })
+    }
     await pause(300)
   })
 
