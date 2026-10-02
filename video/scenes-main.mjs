@@ -2,9 +2,13 @@
 //
 //   INVITE_URL=<запрошення в Demo-Book> VIDEO_EMAIL=video-NN@ask-db.com.ua npm run record
 import { randomBytes } from 'node:crypto'
+import { resolve } from 'node:path'
 import { script } from './video.mjs'
 
-const { QUESTIONS } = script
+const { QUESTIONS, EXCEL_QUESTION } = script
+
+// Файл для сцен 11–13: 50 товарів × 20 колонок (артикул, ціни, залишки, дати, статус…)
+const EXCEL_FILE = resolve('Товари.xlsx')
 
 const INVITE_URL = process.env.INVITE_URL
 const NAME = process.env.VIDEO_NAME ?? 'Олена'
@@ -63,7 +67,29 @@ export default async function ({ page, scene, mark, pause, holdUntil, spoken, na
   await scene(9, 'question-3', () => ask(QUESTIONS[2]))
   await scene(10, 'answer-3', () => answer(2, spoken(10)))
 
-  await scene(11, 'final', async () => {
+  // Без бази: Excel-файл замість підключення. Файл розбирається у браузері, на сервер іде лише схема
+  await scene(11, 'excel-pick', async () => {
+    await page.goto(BASE_URL + '/connect')
+    await page.locator('.db-card').first().waitFor()
+    await pause(900)
+    // картка «Excel / CSV» вибрана за замовчуванням
+    await page.getByRole('button', { name: /Далі/ }).click()
+    await pause(500)
+    await page.locator('input[type=file]').setInputFiles(EXCEL_FILE)
+    await page.locator('.lf-file').waitFor({ timeout: 30_000 })
+  })
+
+  await scene(12, 'excel-question', async () => {
+    await page.getByRole('button', { name: /Створити підключення/ }).click()
+    await page.waitForURL(BASE_URL + '/')
+    await page.locator('textarea').waitFor()
+    await pause(600)
+    await ask(EXCEL_QUESTION)
+  })
+
+  await scene(13, 'excel-answer', () => answer(0, spoken(13)))
+
+  await scene(14, 'final', async () => {
     await page.goto(title)
   })
 }
