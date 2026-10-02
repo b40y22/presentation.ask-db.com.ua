@@ -255,8 +255,65 @@ table.result tr:last-child td { border-bottom: 0; }
       <div class="card step"><h3>Питайте</h3><p>Конектор підключився — у застосунку загоряється 🟢. Можна ставити перше питання.</p></div>
     </div>
     <div class="cmd"><b>docker run</b> -d <i>-e</i> CONNECTOR_TOKEN=… <i>-e</i> DB_DSN=… askdb/connector</div>
+    <p style="margin:26px 0 0;font-size:19px;color:var(--text-2)"><b>Без бази?</b> Завантажте файл Excel або CSV — конектор не потрібен, а дані лишаються у вашому браузері.</p>
   </div>
   <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>6</span></div>
+</section>
+
+<!-- 5b. Excel -->
+<section class="slide">
+  <span class="eyebrow">Без бази даних</span>
+  <h2>Немає бази? Підключіть Excel</h2>
+  <p class="lead">Перетягніть файл .xlsx або .csv — і питайте про свою таблицю звичайною мовою. Файл читається й лишається у вашому браузері.</p>
+  <div class="body">
+    <div class="card" style="padding:26px 30px">
+      <svg style="display:block;width:100%;height:auto" viewBox="0 0 960 230" role="img" aria-label="Схема: файл Excel перетягується в браузер, Ask DB читає його на вашому комп'ютері; на сервер йдуть лише назви стовпців і питання">
+          <defs>
+            <linearGradient id="xacc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+            <marker id="xarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#6366f1"/></marker>
+            <marker id="xarrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#94a3b8"/></marker>
+          </defs>
+          <g font-family="Inter, sans-serif" text-anchor="middle">
+            <rect x="10" y="10" width="620" height="210" rx="16" fill="#ecfdf5" stroke="#a7f3d0" stroke-dasharray="6 5"/>
+            <text x="320" y="37" font-size="13" font-weight="600" fill="#047857">Ваш комп'ютер · браузер</text>
+
+            <rect x="28" y="68" width="130" height="104" rx="12" fill="#fff" stroke="#e2e8f0"/>
+            <rect x="63" y="82" width="60" height="50" rx="6" fill="#16a34a"/>
+            <path d="M75 96 l14 18 M89 96 l-14 18" stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <rect x="97" y="96" width="20" height="4" rx="2" fill="#bbf7d0"/><rect x="97" y="106" width="20" height="4" rx="2" fill="#bbf7d0"/><rect x="97" y="116" width="20" height="4" rx="2" fill="#bbf7d0"/>
+            <text x="93" y="154" font-size="13" font-weight="600" fill="#1e293b">продажі.xlsx</text>
+
+            <line x1="164" y1="120" x2="214" y2="120" stroke="#6366f1" stroke-width="2" marker-end="url(#xarr)"/>
+            <text x="189" y="108" font-size="9.5" fill="#64748b">перетягніть</text>
+
+            <rect x="220" y="64" width="170" height="112" rx="12" fill="url(#xacc)"/>
+            <text x="305" y="104" font-size="16" font-weight="700" fill="#fff">Ask DB</text>
+            <text x="305" y="128" font-size="12" fill="#e0e7ff">читає таблицю,</text>
+            <text x="305" y="146" font-size="12" fill="#e0e7ff">виконує запит тут</text>
+
+            <line x1="396" y1="120" x2="440" y2="120" stroke="#6366f1" stroke-width="2" marker-end="url(#xarr)"/>
+
+            <rect x="446" y="68" width="170" height="104" rx="10" fill="#fff" stroke="#c7d2fe"/>
+            <path d="M446 94 V78 a10 10 0 0 1 10 -10 H606 a10 10 0 0 1 10 10 V94 Z" fill="#eef2ff"/>
+            <text x="462" y="86" font-size="11" font-weight="700" fill="#4f46e5" text-anchor="start">Товар</text>
+            <text x="600" y="86" font-size="11" font-weight="700" fill="#4f46e5" text-anchor="end">Сума</text>
+            <text x="462" y="116" font-size="12" fill="#1e293b" text-anchor="start">Кава</text><text x="600" y="116" font-size="12" fill="#1e293b" text-anchor="end">184 320</text><text x="462" y="134" font-size="12" fill="#1e293b" text-anchor="start">Чай</text><text x="600" y="134" font-size="12" fill="#1e293b" text-anchor="end">96 150</text><text x="462" y="152" font-size="12" fill="#1e293b" text-anchor="start">Мед</text><text x="600" y="152" font-size="12" fill="#1e293b" text-anchor="end">58 400</text>
+
+            <line x1="636" y1="120" x2="769" y2="120" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#xarrg)"/>
+            <text x="702" y="98" font-size="10.5" fill="#475569">лише назви стовпців</text>
+            <text x="702" y="112" font-size="10.5" fill="#475569">і текст питання</text>
+
+            <rect x="775" y="76" width="175" height="88" rx="12" fill="#fff" stroke="#e2e8f0"/>
+            <text x="862" y="113" font-size="15" font-weight="600" fill="#1e293b">Сервер Ask DB</text>
+            <text x="862" y="136" font-size="12" fill="#64748b">AI складає SQL</text>
+
+            <text x="320" y="200" font-size="12.5" font-weight="600" fill="#047857">Рядки з даними не залишають ваш комп'ютер</text>
+          </g>
+        </svg>
+    </div>
+    <p style="margin:22px 0 0;font-size:19px;color:var(--text-2)">Нічого встановлювати не треба: перша відповідь — за хвилину. До 30 МБ, кілька аркушів, кирилиця й українські дати розпізнаються автоматично.</p>
+  </div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>7</span></div>
 </section>
 
 <!-- 6. Безпека -->
@@ -298,7 +355,7 @@ table.result tr:last-child td { border-bottom: 0; }
     <div class="card layer"><div class="n">3</div><div><h3>Сесія лише на читання</h3><p>Підключення до бази відкривається в режимі read-only.</p></div></div>
   </div>
   <div class="honest"><b>Чесно:</b> текст питання, структура таблиць і результат проходять через наш сервер і AI-модель — інакше AI не складе запит. Трафік зашифрований. Колонки з іменами, email і телефонами AI не бачить навіть як приклади значень.</div>
-  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>7</span></div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>8</span></div>
 </section>
 
 <!-- 7. Для кого -->
@@ -325,7 +382,7 @@ table.result tr:last-child td { border-bottom: 0; }
       </div>
     </div>
   </div>
-  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>8</span></div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>9</span></div>
 </section>
 
 <!-- 8. Стан продукту -->
@@ -339,6 +396,8 @@ table.result tr:last-child td { border-bottom: 0; }
       <span class="pill done">Питання звичайною мовою</span>
       <span class="pill done">MySQL і MariaDB</span>
       <span class="pill done">PostgreSQL</span>
+      <span class="pill done">Файл Excel / CSV — дані лишаються у браузері</span>
+      <span class="pill done">Експорт у Excel / CSV</span>
       <span class="pill done">Лише читання, подвійна перевірка</span>
       <span class="pill done">Знання для ШІ</span>
       <span class="pill done">Команда і спільні підключення</span>
@@ -349,10 +408,9 @@ table.result tr:last-child td { border-bottom: 0; }
     <p class="stage next">Далі</p>
     <div class="pills">
       <span class="pill next">1С / BAS — питання до облікових баз</span>
-      <span class="pill next">Експорт результатів у Excel / CSV</span>
     </div>
   </div>
-  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>9</span></div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>10</span></div>
 </section>
 
 <!-- 9. Пілот -->
@@ -377,7 +435,7 @@ table.result tr:last-child td { border-bottom: 0; }
       </div>
     </div>
   </div>
-  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>10</span></div>
+  <div class="foot"><b><img src="logo.svg" alt="">Ask DB</b><span>11</span></div>
 </section>
 
 <!-- 10. Контакти -->
